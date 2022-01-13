@@ -21,6 +21,7 @@ import SideLayout from './components/SideLayout'
 import Playground from './pages/Playground'
 import CallBack from './pages/CallBack'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import TitleOutlet from './components/TitleOutlet'
 
 function App() {
   return (
@@ -28,38 +29,33 @@ function App() {
       <UserProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<TitleOutlet />} />
+            <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
             <Route path="/callback" element={<CallBack />} />
+            <Route element={<AuthenticatedRoute />}>
+              <Route element={<Layout />}>
+                <Route element={<SideLayout />}>
+                  <Route path="/palace" element={<PalacePage />} />
+                  <Route path="/template" element={<TemplatePage />} />
+                </Route>
+                <Route path="/edit/:base64/*" element={<Edit />} />
+                <Route path="/fix/:id" element={<Fix />} />
+                <Route path="/fixTemplate/:id" element={<FixTemplate />} />
+                <Route path="/editTemplate/:base64/*" element={<EditTemplate />} />
+              </Route>
+            </Route>
             <Route element={<Layout />}>
               <Route element={<SideLayout />}>
                 <Route path="/sharedPalaces" element={<SharedPalaces />} />
                 <Route path="/sharedTemplates" element={<SharedTemplates />} />
                 <Route path="/playground" element={<Playground />} />
               </Route>
+              <Route path="/memorize/:id" element={<Memorize />} />
+              <Route path="/fromTemplate/:id" element={<EditFromTemplate />} />
               <Route path="/*" element={<NotFound />} />
-            </Route>
-            <Route element={<AuthenticatedRoute />}>
-              <Route element={<Layout />}>
-                <Route element={<SideLayout />}>
-                  <Route path="/" element={<PalacePage />} />
-                  <Route path="/palace" element={<PalacePage />} />
-                  <Route path="/template" element={<TemplatePage />} />
-                  <Route path="/sharedPalaces" element={<SharedPalaces />} />
-                  <Route path="/sharedTemplates" element={<SharedTemplates />} />
-                  <Route path="/playground" element={<Playground />} />
-                </Route>
-                <Route path="/memorize/:id" element={<Memorize />} />
-                <Route path="/edit/:base64/*" element={<Edit />} />
-                <Route path="/fix/:id" element={<Fix />} />
-                <Route path="/fixTemplate/:id" element={<FixTemplate />} />
-                <Route path="/editTemplate/:base64/*" element={<EditTemplate />} />
-                <Route path="/fromTemplate/:id" element={<EditFromTemplate />} />
-                <Route path="/*" element={<NotFound />} />
-              </Route>
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/" element={<Title />} />
-            <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
           </Routes>
         </BrowserRouter>
       </UserProvider>
