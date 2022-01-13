@@ -184,10 +184,25 @@ export const Edit: React.VFC<EditProps> = ({imageUrl, isPlayground = false, xGap
   const handleClose = () => {
     setAnchorEl(null)
   }
-
+  function handlePinsChange(e: React.ChangeEvent<HTMLInputElement>, index: number, type: string) {
+    let pinsCopy = [...pins]
+    switch (type) {
+      case 'word':
+        pinsCopy[index].word = e.target.value
+        break
+      case 'place':
+        pinsCopy[index].place = e.target.value
+        break
+      case 'situation':
+        pinsCopy[index].situation = e.target.value
+        break
+    }
+    setPins(pinsCopy)
+  }
   const pinsList = pins.map((pin, index) => (
     <li key={pin.number} className={styles.li}>
       <div className={styles.inputContainer}>
+        {pin.number + '.'}
         <img
           className={styles.listPinIcon}
           src={
@@ -201,17 +216,33 @@ export const Edit: React.VFC<EditProps> = ({imageUrl, isPlayground = false, xGap
           }
           alt=""
         />
-        <HidableWord text={pin.word} isVisible={true} />
+        <input
+          type="text"
+          value={pin.word}
+          onChange={(e) => handlePinsChange(e, index, 'word')}
+          className={styles.pinInput}
+        />
         <span>が</span>
-        <HidableWord text={pin.place} isVisible={true} />
+        <input
+          type="text"
+          value={pin.place}
+          onChange={(e) => handlePinsChange(e, index, 'place')}
+          className={styles.pinInput}
+        />
         <span>で</span>
-        <HidableWord text={pin.situation} isVisible={true} />
+        <input
+          type="text"
+          value={pin.situation}
+          onChange={(e) => handlePinsChange(e, index, 'situation')}
+          className={styles.pinInput}
+        />
         <IconButton onClick={() => handleDeletePin(pin)} className={styles.trashButton}>
           <DeleteIcon />
         </IconButton>
       </div>
     </li>
   ))
+
   function handleGroupsChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
     let groupsCopy = [...groups]
     groupsCopy[index] = e.target.value
@@ -226,29 +257,33 @@ export const Edit: React.VFC<EditProps> = ({imageUrl, isPlayground = false, xGap
       <ClickAwayListener onClickAway={() => setPinOpen(null)}>
         <div>
           {pins.map((pin, i) => (
-            <img
+            <div
               className={styles.pushedPin}
-              key={i}
-              src={
-                pin.groupNumber === 0
-                  ? pinIcon
-                  : pin.groupNumber === 1
-                  ? redPinIcon
-                  : pin.groupNumber === 2
-                  ? bluePinIcon
-                  : yellowPinIcon
-              }
-              alt=""
               style={{
                 position: 'absolute',
-                top: pin.y - 68 - yGap + 'px',
-                left: pin.x - xGap + 'px',
+                top: pin.y - 68 + 'px',
+                left: pin.x + 'px',
                 transform: `translate(-50%, -100%)`,
-              }}
-              onClick={() => {
-                handlePinClick(pin)
-              }}
-            />
+              }}>
+              <span>{pin.number}.</span>
+              <img
+                className={styles.pushedPin}
+                key={i}
+                src={
+                  pin.groupNumber === 0
+                    ? pinIcon
+                    : pin.groupNumber === 1
+                    ? redPinIcon
+                    : pin.groupNumber === 2
+                    ? bluePinIcon
+                    : yellowPinIcon
+                }
+                alt=""
+                onClick={() => {
+                  handlePinClick(pin)
+                }}
+              />
+            </div>
           ))}
           {pinOpen && (
             <Portal>

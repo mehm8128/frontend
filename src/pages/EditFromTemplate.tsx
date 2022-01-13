@@ -120,6 +120,7 @@ export const EditFromTemplate: React.VFC<EditProps> = ({imageUrl, isPlayground =
           image: image,
           embededPins: pins,
           createdBy: user.id,
+          //createdBy: templateCreatedBy,
           group1: groups[0],
           group2: groups[1],
           group3: groups[2],
@@ -130,6 +131,7 @@ export const EditFromTemplate: React.VFC<EditProps> = ({imageUrl, isPlayground =
           image: image,
           embededPins: pins,
           createdBy: user.id,
+          //createdBy: templateCreatedBy,
           group1: groups[0],
           group2: groups[1],
           group3: groups[2],
@@ -214,10 +216,25 @@ export const EditFromTemplate: React.VFC<EditProps> = ({imageUrl, isPlayground =
   const handleClose = () => {
     setAnchorEl(null)
   }
-
+  function handlePinsChange(e: React.ChangeEvent<HTMLInputElement>, index: number, type: string) {
+    let pinsCopy = [...pins]
+    switch (type) {
+      case 'word':
+        pinsCopy[index].word = e.target.value
+        break
+      case 'place':
+        pinsCopy[index].place = e.target.value
+        break
+      case 'situation':
+        pinsCopy[index].situation = e.target.value
+        break
+    }
+    setPins(pinsCopy)
+  }
   const pinsList = pins.map((pin, index) => (
     <li key={pin.number} className={styles.li}>
       <div className={styles.inputContainer}>
+        {pin.number + '.'}
         <img
           className={styles.listPinIcon}
           src={
@@ -231,14 +248,31 @@ export const EditFromTemplate: React.VFC<EditProps> = ({imageUrl, isPlayground =
           }
           alt=""
         />
-        <HidableWord text={pin.word} isVisible={true} />
+        <input
+          type="text"
+          value={pin.word}
+          onChange={(e) => handlePinsChange(e, index, 'word')}
+          className={styles.pinInput}
+        />
         <span>が</span>
-        <HidableWord text={pin.place} isVisible={true} />
+        <input
+          type="text"
+          value={pin.place}
+          onChange={(e) => handlePinsChange(e, index, 'place')}
+          className={styles.pinInput}
+        />
         <span>で</span>
-        <HidableWord text={pin.situation} isVisible={true} />
-        <IconButton onClick={() => handleDeletePin(pin)} className={styles.trashButton}>
-          <DeleteIcon />
-        </IconButton>
+        <input
+          type="text"
+          value={pin.situation}
+          onChange={(e) => handlePinsChange(e, index, 'situation')}
+          className={styles.pinInput}
+        />
+        {!location.state.shared ? (
+          <IconButton onClick={() => handleDeletePin(pin)} className={styles.trashButton}>
+            <DeleteIcon />
+          </IconButton>
+        ) : null}
       </div>
     </li>
   ))
@@ -252,52 +286,80 @@ export const EditFromTemplate: React.VFC<EditProps> = ({imageUrl, isPlayground =
   }
   return (
     <div className={styles.edit}>
-      {mode === 'edit' && <CustomCursor type="pin" isHover={isHovered} />}
-      <ClickAwayListener onClickAway={() => setPinOpen(null)}>
-        <div>
-          {pins.map((pin, i) => (
-            <img
-              className={styles.pushedPin}
-              key={i}
-              src={
-                pin.groupNumber === 0
-                  ? pinIcon
-                  : pin.groupNumber === 1
-                  ? redPinIcon
-                  : pin.groupNumber === 2
-                  ? bluePinIcon
-                  : yellowPinIcon
-              }
-              alt=""
-              style={{
-                position: 'absolute',
-                top: pin.y - 68 + 'px',
-                left: pin.x + 'px',
-                transform: `translate(-50%, -100%)`,
-              }}
-              onClick={() => {
-                handlePinClick(pin)
-              }}
-            />
-          ))}
-          {pinOpen && (
-            <Portal>
-              <Box sx={boxStyle()}>
-                <AddNewWordDialog
-                  open={!!pinOpen}
-                  close={close}
-                  putPin={putPin}
-                  deletePin={handleDeletePin}
-                  pinContent={pinOpen}
-                  pins={pins}
-                  setPins={setPins}
+      {mode === 'edit' && !location.state.shared && <CustomCursor type="pin" isHover={isHovered} />}
+      {!location.state.shared ? (
+        <ClickAwayListener onClickAway={() => setPinOpen(null)}>
+          <div>
+            {pins.map((pin, i) => (
+              <div
+                className={styles.pushedPin}
+                style={{
+                  position: 'absolute',
+                  top: pin.y - 68 + 'px',
+                  left: pin.x + 'px',
+                  transform: `translate(-50%, -100%)`,
+                }}>
+                <span>{pin.number}.</span>
+                <img
+                  className={styles.pushedPinImg}
+                  key={i}
+                  src={
+                    pin.groupNumber === 0
+                      ? pinIcon
+                      : pin.groupNumber === 1
+                      ? redPinIcon
+                      : pin.groupNumber === 2
+                      ? bluePinIcon
+                      : yellowPinIcon
+                  }
+                  alt=""
+                  onClick={() => {
+                    handlePinClick(pin)
+                  }}
                 />
-              </Box>
-            </Portal>
-          )}
-        </div>
-      </ClickAwayListener>
-
+              </div>
+            ))}
+            {pinOpen && (
+              <Portal>
+                <Box sx={boxStyle()}>
+                  <AddNewWordDialog
+                    open={!!pinOpen}
+                    close={close}
+                    putPin={putPin}
+                    deletePin={handleDeletePin}
+                    pinContent={pinOpen}
+                    pins={pins}
+                    setPins={setPins}
+                  />
+                </Box>
+              </Portal>
+            )}
+          </div>
+        </ClickAwayListener>
+      ) : (
+        pins.map((pin, i) => (
+          <img
+            className={styles.pushedPin}
+            key={i}
+            src={
+              pin.groupNumber === 0
+                ? pinIcon
+                : pin.groupNumber === 1
+                ? redPinIcon
+                : pin.groupNumber === 2
+                ? bluePinIcon
+                : yellowPinIcon
+            }
+            alt=""
+            style={{
+              position: 'absolute',
+              top: pin.y - 68 + 'px',
+              left: pin.x + 'px',
+              transform: `translate(-50%, -100%)`,
+            }}
+          />
+        ))
+      )}
       <IconButton className={styles.togglPinList} onClick={handleClick}>
         {mode === 'edit' && (
           <Badge badgeContent={pins.length} color="primary">
@@ -307,75 +369,87 @@ export const EditFromTemplate: React.VFC<EditProps> = ({imageUrl, isPlayground =
         {mode === 'memorization' && <VisibilityOffIcon />}
       </IconButton>
       <div className={styles.card}>
-        グループ
-        <ul>
-          {groups.map((group, index) => (
-            <li key={index}>
-              <img
-                className={styles.listPinIcon}
-                src={index === 0 ? redPinIcon : index === 1 ? bluePinIcon : yellowPinIcon}
-                alt=""
-              />
-              <input
-                type="text"
-                value={group}
-                onChange={(e) => handleGroupsChange(e, index)}
-                className={styles.groupNameInput}
-              />
-            </li>
-          ))}
-        </ul>
+        {!location.state.shared ? (
+          <>
+            グループ
+            <ul>
+              {groups.map((group, index) => (
+                <li key={index}>
+                  <img
+                    className={styles.listPinIcon}
+                    src={index === 0 ? redPinIcon : index === 1 ? bluePinIcon : yellowPinIcon}
+                    alt=""
+                  />
+
+                  <input
+                    type="text"
+                    value={group}
+                    onChange={(e) => handleGroupsChange(e, index)}
+                    className={styles.groupNameInput}
+                  />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
         ピンリスト
         <ul>{pinsList}</ul>
       </div>
-
-      <ClickAwayListener onClickAway={handleClickAway}>
+      {!location.state.shared ? (
+        <>
+          <ClickAwayListener onClickAway={handleClickAway}>
+            <div className={styles.image}>
+              <img
+                className={styles.layoutImage}
+                src={Extension(image)}
+                alt=""
+                onClick={() => mode === 'edit' && setOpen(Math.random())}
+                ref={hoverRef}
+              />
+              {open && (
+                <Portal>
+                  <Box sx={boxStyle()}>
+                    <AddNewWordDialog open={!!open} putPin={putPin} />
+                  </Box>
+                  <img src={pinIcon} alt="" className={styles.pinIcon} style={pinStyle()} />
+                </Portal>
+              )}
+            </div>
+          </ClickAwayListener>
+          <div className={styles.nameInputForm}>
+            <input
+              required
+              type="text"
+              value={palaceName}
+              placeholder="Untitled Palace"
+              onChange={(e) => setPalaceName(e.target.value)}
+            />
+          </div>
+          <div className={styles.form}>
+            <form>
+              <label>
+                <input type="checkbox" onClick={() => setShareOption(!shareOption)} />
+                <span>宮殿を共有</span>
+              </label>
+              <br />
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  setIsOpen(true)
+                }}
+                type="submit"
+                className={styles.completeButton}>
+                <CheckCircleIcon />
+                <span>記憶の宮殿を作成する</span>
+              </button>
+            </form>
+          </div>
+        </>
+      ) : (
         <div className={styles.image}>
-          <img
-            className={styles.layoutImage}
-            src={Extension(image)}
-            alt=""
-            onClick={() => mode === 'edit' && setOpen(Math.random())}
-            ref={hoverRef}
-          />
-          {open && (
-            <Portal>
-              <Box sx={boxStyle()}>
-                <AddNewWordDialog open={!!open} putPin={putPin} />
-              </Box>
-              <img src={pinIcon} alt="" className={styles.pinIcon} style={pinStyle()} />
-            </Portal>
-          )}
+          <img className={styles.layoutImage} src={Extension(image)} alt="" ref={hoverRef} />
         </div>
-      </ClickAwayListener>
-      <div className={styles.nameInputForm}>
-        <input
-          required
-          type="text"
-          value={palaceName}
-          placeholder="Untitled Palace"
-          onChange={(e) => setPalaceName(e.target.value)}
-        />
-      </div>
-      <div className={styles.form}>
-        <form>
-          <label>
-            <input type="checkbox" onClick={() => setShareOption(!shareOption)} />
-            <span>宮殿を共有</span>
-          </label>
-          <br />
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              setIsOpen(true)
-            }}
-            type="submit"
-            className={styles.completeButton}>
-            <CheckCircleIcon />
-            <span>記憶の宮殿を作成する</span>
-          </button>
-        </form>
-      </div>
+      )}
       <Dialog open={isOpen && !(pins.length <= 0 || palaceName === '')} onClose={() => setIsOpen(false)}>
         <DialogTitle>
           <span>本当に宮殿を作成しますか？</span>

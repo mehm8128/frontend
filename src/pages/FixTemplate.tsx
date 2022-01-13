@@ -51,6 +51,7 @@ export const FixTemplate: React.VFC = () => {
             setPins(data[i].pins)
             setTemplateId(data[i].id)
             setTemplateCreatedBy(data[i].createdBy)
+            setShareOption(data[i].share)
           }
         }
       })
@@ -84,13 +85,11 @@ export const FixTemplate: React.VFC = () => {
       }
 
       putTemplate(templateId, data, () => {
-        if (shareOption) {
-          const data = {
-            share: shareOption,
-            createdBy: templateCreatedBy,
-          }
-          putShareTemplate(templateId, data)
+        const data = {
+          share: shareOption,
+          createdBy: templateCreatedBy,
         }
+        putShareTemplate(templateId, data)
       })
       setCompleteIsOpen(true)
     } else {
@@ -158,7 +157,7 @@ export const FixTemplate: React.VFC = () => {
   const pinsList = pins.map((pin, index) => (
     <li key={pin.number} className={styles.li}>
       <div className={styles.inputContainer}>
-        {pin.number}:
+        {pin.number + '.'}
         <button onClick={() => handlePinChange(pin.number)} className={styles.listPinIconButton}>
           <img
             className={styles.listPinIcon}
@@ -187,29 +186,33 @@ export const FixTemplate: React.VFC = () => {
       <ClickAwayListener onClickAway={() => setPinOpen(null)}>
         <div>
           {pins.map((pin, i) => (
-            <img
+            <div
               className={styles.pushedPin}
-              key={i}
-              src={
-                pin.groupNumber === 0
-                  ? pinIcon
-                  : pin.groupNumber === 1
-                  ? redPinIcon
-                  : pin.groupNumber === 2
-                  ? bluePinIcon
-                  : yellowPinIcon
-              }
-              alt=""
               style={{
                 position: 'absolute',
                 top: pin.y - 68 + 'px',
                 left: pin.x + 'px',
                 transform: `translate(-50%, -100%)`,
-              }}
-              onClick={() => {
-                handleDeletePin(pin)
-              }}
-            />
+              }}>
+              <span>{pin.number}.</span>
+              <img
+                className={styles.pushedPinImg}
+                key={i}
+                src={
+                  pin.groupNumber === 0
+                    ? pinIcon
+                    : pin.groupNumber === 1
+                    ? redPinIcon
+                    : pin.groupNumber === 2
+                    ? bluePinIcon
+                    : yellowPinIcon
+                }
+                alt=""
+                onClick={() => {
+                  handleDeletePin(pin)
+                }}
+              />
+            </div>
           ))}
         </div>
       </ClickAwayListener>
@@ -248,7 +251,12 @@ export const FixTemplate: React.VFC = () => {
       <div className={styles.form}>
         <form>
           <label>
-            <input type="checkbox" onClick={() => setShareOption(!shareOption)} id="sharedCheckBox" />
+            <input
+              type="checkbox"
+              checked={shareOption}
+              onClick={() => setShareOption(!shareOption)}
+              id="sharedCheckBox"
+            />
             <span>テンプレートを共有</span>
           </label>
           <br />

@@ -14,15 +14,18 @@
   object-fit: contain;
 }
 .pushedPin {
+}
+.pushedPinImg {
   cursor: pointer;
   width: 32px;
   height: 32px;
   object-fit: contain;
   transition-duration: 0.2s;
 }
-.pushedPin:hover {
+
+.pushedPinImg:hover {
   transform-origin: bottom;
-  transform: translate(-50%, -100%) scale(1.3) !important;
+  transform: scale(1.3) !important;
 }
 
 .pinIcon {
@@ -108,7 +111,7 @@
 }
 
 .card {
-  width: 400px;
+  width: 420px;
   height: 400px;
   text-align: center;
   position: absolute;
@@ -140,7 +143,7 @@
 }
 .listPinIcon {
   object-fit: contain;
-  transition-duration: 0.2s;
+  margin-left: 4px;
 }
 .listPinIconButton {
   border: none;
@@ -161,4 +164,8 @@
 }
 .groupName > span {
   margin-right: 24px;
+}
+.pinInput {
+  width: 80px;
+  margin: 0 8px;
 }
